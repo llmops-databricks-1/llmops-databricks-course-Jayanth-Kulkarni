@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    hf_docs_data_ingestion_job:
+      name: hf_docs_data_ingestion
+      tags:
+        project_name: "stackoverflow-curator"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: hf_docs_data_ingestion
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/1.3_hf_docs_data_ingestion.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"

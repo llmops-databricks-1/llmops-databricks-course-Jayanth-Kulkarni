@@ -1,24 +1,45 @@
 bundle:
   name: llmops-databricks-course-Jayanth-Kulkarni
 
-include:
-  - resources/*.yml
-
-variables:
-  git_sha:
-    description: "Git SHA of the deployed commit"
-    default: "local"
-
 artifacts:
   default:
     type: whl
     build: uv build
     path: .
 
+variables:
+  git_sha:
+    description: "Git SHA of the deployed commit"
+    default: "local"
+  branch:
+    description: branch
+    default: main
+  schedule_pause_status:
+    description: schedule pause status
+    default: PAUSED
+
+include:
+  - resources/*.yml
+
 targets:
   dev:
     mode: development
     default: true
     workspace:
-      host: https://<your-databricks-workspace>
+      host: https://dbc-735429e0-943f.cloud.databricks.com
+      profile: LLMOps-Course
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  acc:
+    workspace:
+      host: https://dbc-735429e0-943f.cloud.databricks.com
+      root_path: /Shared/.bundle/${bundle.target}/${bundle.name}
+    variables:
+      schedule_pause_status: PAUSED
+
+  prd:
+    workspace:
+      host: https://dbc-735429e0-943f.cloud.databricks.com
+      root_path: /Shared/.bundle/${bundle.target}/${bundle.name}
+    variables:
+      schedule_pause_status: UNPAUSED
