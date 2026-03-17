@@ -12,7 +12,6 @@ from pyspark.sql.types import BooleanType, StringType, StructField, StructType
 
 from stackoverflow_curator.config import get_env, load_config
 
-
 # COMMAND ----------
 # Create Spark session and load config
 
@@ -34,8 +33,7 @@ TOCTREE_URL = (
     "/main/docs/source/en/_toctree.yml"
 )
 GITHUB_RAW_BASE = (
-    "https://raw.githubusercontent.com/huggingface/transformers"
-    "/main/docs/source/en"
+    "https://raw.githubusercontent.com/huggingface/transformers/main/docs/source/en"
 )
 HF_DOCS_BASE = "https://huggingface.co/docs/transformers"
 
@@ -182,7 +180,9 @@ for i, source in enumerate(to_fetch, 1):
                 "ingestion_timestamp": now,
             }
         )
-        logger.info(f"  [{i}/{len(to_fetch)}] OK  {source['title']}  ({len(content):,} chars)")
+        logger.info(
+            f"  [{i}/{len(to_fetch)}] OK  {source['title']}  ({len(content):,} chars)"
+        )
     except Exception as e:
         logger.warning(f"  [{i}/{len(to_fetch)}] FAIL  {source['url']}  — {e}")
         rows.append(
