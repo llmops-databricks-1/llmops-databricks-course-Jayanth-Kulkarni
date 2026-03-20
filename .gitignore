@@ -95,3 +95,18 @@ dmypy.json
 # VS code configuration
 .vscode
 .history
+notes/
+.specstory/
+.databricks/bundle/
+
+# Cursor IDE
+.cursorindexingignore
+
+# direnv (may contain tokens/secrets)
+.envrc
+
+# Auto-generated type stubs
+__builtins__.pyi
+
+# Claude Code personal settings (commands/ is committed, settings.json is not)
+.claude/settings.json

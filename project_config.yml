@@ -1,0 +1,47 @@
+dev:
+  catalog: mlops_dev
+  schema: jayanthk
+  volume: hf_docs_files
+  llm_endpoint: databricks-llama-4-maverick
+  embedding_endpoint: databricks-gte-large-en
+  warehouse_id: f6de440a1a1cec62
+  vector_search_endpoint: llmops_course_vs_endpoint
+  genie_space_id: null
+
+acc:
+  catalog: mlops_acc
+  schema: jayanthk
+  volume: hf_docs_files
+  llm_endpoint: databricks-llama-4-maverick
+  embedding_endpoint: databricks-gte-large-en
+  warehouse_id: f6de440a1a1cec62
+  vector_search_endpoint: llmops_course_vs_endpoint
+  genie_space_id: null
+
+prd:
+  catalog: mlops_prd
+  schema: jayanthk
+  volume: hf_docs_files
+  llm_endpoint: databricks-llama-4-maverick
+  embedding_endpoint: databricks-gte-large-en
+  warehouse_id: f6de440a1a1cec62
+  vector_search_endpoint: llmops_course_vs_endpoint
+  genie_space_id: null
+
+# Model configuration
+model_config:
+  temperature: 0.7
+  max_tokens: 2000
+  top_p: 0.95
+
+# Vector search configuration
+vector_search:
+  embedding_dimension: 1024
+  similarity_metric: cosine
+  num_results: 5
+
+# Chunking configuration
+chunking:
+  chunk_size: 512
+  chunk_overlap: 50
+  separator: "\n\n"
