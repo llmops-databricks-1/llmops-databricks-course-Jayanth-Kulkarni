@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    chunking_strategies_job:
+      name: 2-3-chunking-strategies
+      tags:
+        project_name: "stackoverflow-curator"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: run_notebook
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/2.3_chunking_strategies.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"

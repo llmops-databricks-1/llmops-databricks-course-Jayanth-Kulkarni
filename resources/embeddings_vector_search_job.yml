@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    embeddings_vector_search_job:
+      name: 2-4-embeddings-vector-search
+      tags:
+        project_name: "stackoverflow-curator"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: run_notebook
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/2.4_embeddings_vector_search.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
