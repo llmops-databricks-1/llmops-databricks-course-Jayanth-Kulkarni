@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from databricks.vector_search.client import VectorSearchClient
 from loguru import logger
 
@@ -37,19 +35,13 @@ class VectorSearchManager:
             else []
         )
         endpoint_exists = any(
-            (
-                ep.get("name")
-                if isinstance(ep, dict)
-                else getattr(ep, "name", None)
-            )
+            (ep.get("name") if isinstance(ep, dict) else getattr(ep, "name", None))
             == self.endpoint_name
             for ep in endpoints
         )
 
         if not endpoint_exists:
-            logger.info(
-                f"Creating vector search endpoint: {self.endpoint_name}"
-            )
+            logger.info(f"Creating vector search endpoint: {self.endpoint_name}")
             self.client.create_endpoint_and_wait(
                 name=self.endpoint_name,
                 endpoint_type="STANDARD",
@@ -58,7 +50,7 @@ class VectorSearchManager:
         else:
             logger.info(f"Endpoint already exists: {self.endpoint_name}")
 
-    def create_or_get_index(self) -> Any:
+    def create_or_get_index(self) -> object:
         """Create or retrieve the delta-sync vector search index."""
         self.create_endpoint_if_not_exists()
         source_table = f"{self.catalog}.{self.schema}.hf_doc_chunks"
@@ -69,9 +61,7 @@ class VectorSearchManager:
             logger.info(f"Index exists: {self.index_name}")
             return index
         except Exception:
-            logger.info(
-                f"Index {self.index_name} not found, will create it"
-            )
+            logger.info(f"Index {self.index_name} not found, will create it")
 
         # Create delta-sync index
         try:

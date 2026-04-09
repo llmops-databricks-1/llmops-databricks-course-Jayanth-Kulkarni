@@ -64,17 +64,13 @@ total = sources_df.count()
 fetched = sources_df.filter("is_fetched = true").count()
 logger.info(f"Source documents: {fetched}/{total} fetched")
 
-sources_df.select("id", "title", "primary_category", "is_fetched").show(
-    10, truncate=50
-)
+sources_df.select("id", "title", "primary_category", "is_fetched").show(10, truncate=50)
 
 # COMMAND ----------
 
 # Preview a single document's raw content
 sample = (
-    sources_df.filter("is_fetched = true")
-    .select("id", "title", "raw_content")
-    .first()
+    sources_df.filter("is_fetched = true").select("id", "title", "raw_content").first()
 )
 logger.info(f"Sample doc: {sample['title']} ({sample['id']})")
 logger.info(f"Raw content length: {len(sample['raw_content']):,} chars")

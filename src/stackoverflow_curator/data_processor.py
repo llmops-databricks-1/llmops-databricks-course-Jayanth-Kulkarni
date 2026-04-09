@@ -10,9 +10,8 @@ import re
 
 from loguru import logger
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, current_timestamp, lit
+from pyspark.sql.functions import current_timestamp
 from pyspark.sql.types import (
-    ArrayType,
     StringType,
     StructField,
     StructType,
@@ -74,9 +73,7 @@ class DataProcessor:
             if m:
                 # Flush previous section
                 if current_lines:
-                    sections.append(
-                        (current_heading, "\n".join(current_lines).strip())
-                    )
+                    sections.append((current_heading, "\n".join(current_lines).strip()))
                 current_heading = m.group(2).strip()
                 current_lines = []
             else:
@@ -122,9 +119,7 @@ class DataProcessor:
     # Public API
     # ------------------------------------------------------------------
 
-    def chunk_document(
-        self, doc_id: str, raw_content: str
-    ) -> list[tuple[str, str, str]]:
+    def chunk_document(self, doc_id: str, raw_content: str) -> list[tuple[str, str, str]]:
         """Chunk a single document into ``(chunk_id, section_title, text)`` tuples."""
         sections = self._split_by_headings(raw_content)
         results: list[tuple[str, str, str]] = []
@@ -136,21 +131,17 @@ class DataProcessor:
                 continue
 
             if len(cleaned) <= self.max_chunk_chars:
-                results.append(
-                    (f"{doc_id}_{chunk_idx}", heading, cleaned)
-                )
+                results.append((f"{doc_id}_{chunk_idx}", heading, cleaned))
                 chunk_idx += 1
             else:
                 for sub in self._fixed_size_split(cleaned):
-                    results.append(
-                        (f"{doc_id}_{chunk_idx}", heading, sub)
-                    )
+                    results.append((f"{doc_id}_{chunk_idx}", heading, sub))
                     chunk_idx += 1
 
         return results
 
     def process_chunks(self) -> None:
-        """Read ``hf_doc_sources``, chunk every fetched doc, write to ``hf_doc_chunks``."""
+        """Read hf_doc_sources, chunk every fetched doc, write to hf_doc_chunks."""
         logger.info(f"Reading source documents from {self.sources_table}")
 
         sources_df = (

@@ -118,17 +118,17 @@ logger.info(f"  Std dev: {chunk_stats['stddev_length']:.0f} characters")
 
 # Chunks per document
 logger.info("\nChunks per document:")
-chunks_df.groupBy("doc_id", "title").count().orderBy(
-    col("count").desc()
-).show(10, truncate=40)
+chunks_df.groupBy("doc_id", "title").count().orderBy(col("count").desc()).show(
+    10, truncate=40
+)
 
 # COMMAND ----------
 
 # Chunks per category
 logger.info("\nChunks per category:")
-chunks_df.groupBy("primary_category").count().orderBy(
-    col("count").desc()
-).show(10, truncate=40)
+chunks_df.groupBy("primary_category").count().orderBy(col("count").desc()).show(
+    10, truncate=40
+)
 
 # COMMAND ----------
 
@@ -146,9 +146,7 @@ chunks_df.groupBy("primary_category").count().orderBy(
 # COMMAND ----------
 
 
-def fixed_size_chunking(
-    text: str, chunk_size: int = 500, overlap: int = 50
-) -> list[str]:
+def fixed_size_chunking(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
     """Create fixed-size chunks with overlap."""
     chunks = []
     start = 0
@@ -167,7 +165,7 @@ fixed_chunks = fixed_size_chunking(sample_text, chunk_size=500, overlap=50)
 
 logger.info(f"Original text length: {len(sample_text)} characters")
 logger.info(f"Number of fixed-size chunks: {len(fixed_chunks)}")
-logger.info(f"\nFirst chunk preview:")
+logger.info("\nFirst chunk preview:")
 logger.info(fixed_chunks[0][:200] + "...")
 
 # COMMAND ----------
@@ -202,7 +200,7 @@ def sentence_chunking(text: str, max_sentences: int = 5) -> list[str]:
 sentence_chunks = sentence_chunking(sample_text, max_sentences=5)
 
 logger.info(f"Number of sentence-based chunks: {len(sentence_chunks)}")
-logger.info(f"\nFirst chunk preview:")
+logger.info("\nFirst chunk preview:")
 logger.info(sentence_chunks[0][:200] + "...")
 
 # COMMAND ----------

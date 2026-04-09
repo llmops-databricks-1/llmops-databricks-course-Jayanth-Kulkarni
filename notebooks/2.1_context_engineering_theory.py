@@ -83,6 +83,7 @@ from loguru import logger
 
 # COMMAND ----------
 
+
 # Example: Token estimation
 def estimate_tokens(text: str) -> int:
     """Rough estimation: ~4 characters per token."""
@@ -222,6 +223,7 @@ for i, var in enumerate(variations, 1):
 
 # COMMAND ----------
 
+
 # Context ordering to avoid "lost in the middle" problem
 def order_context_by_relevance(chunks: list[dict]) -> list[dict]:
     """Order chunks: most relevant at start, second-most at end, rest in middle."""
@@ -266,6 +268,7 @@ for i, chunk in enumerate(ordered, 1):
 # MAGIC - Slower, costs tokens
 
 # COMMAND ----------
+
 
 def summarize_chunk(text: str, max_length: int = 100) -> str:
     """Summarize a text chunk using LLM."""

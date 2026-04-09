@@ -15,8 +15,6 @@
 from loguru import logger
 from pyspark.sql import SparkSession
 
-from databricks.vector_search.client import VectorSearchClient
-
 from stackoverflow_curator.config import get_env, load_config
 from stackoverflow_curator.vector_search import VectorSearchManager
 
@@ -175,11 +173,9 @@ logger.info(f"  Embedding Model: {vs_manager.embedding_model}")
 
 def parse_vector_search_results(results):
     """Parse vector search results from array format to dict format."""
-    columns = [
-        c["name"] for c in results.get("manifest", {}).get("columns", [])
-    ]
+    columns = [c["name"] for c in results.get("manifest", {}).get("columns", [])]
     data_array = results.get("result", {}).get("data_array", [])
-    return [dict(zip(columns, row_data)) for row_data in data_array]
+    return [dict(zip(columns, row_data, strict=False)) for row_data in data_array]
 
 
 # COMMAND ----------

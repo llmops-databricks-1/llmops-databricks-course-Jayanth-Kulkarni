@@ -3,10 +3,7 @@
 Only tests the static/pure helper methods that don't require Spark.
 """
 
-import pytest
-
 from stackoverflow_curator.data_processor import DataProcessor
-
 
 # ---------------------------------------------------------------------------
 # _split_by_headings
