@@ -1,0 +1,242 @@
+# Databricks notebook source
+# MAGIC %md
+# MAGIC # Lecture 2.3: Chunking Strategies
+# MAGIC
+# MAGIC ## Topics Covered:
+# MAGIC - Why chunking matters
+# MAGIC - Different chunking approaches
+# MAGIC - Comparing strategies on our HuggingFace docs
+# MAGIC - Chunk statistics and quality analysis
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 1. Why Chunking Matters
+# MAGIC
+# MAGIC **Chunking** is the process of breaking documents into smaller pieces for:
+# MAGIC
+# MAGIC 1. **Embedding Generation**: Most embedding models have token limits (512-8192 tokens)
+# MAGIC 2. **Retrieval Precision**: Smaller chunks = more precise retrieval
+# MAGIC 3. **Context Window**: LLMs have limited context windows
+# MAGIC 4. **Cost Optimization**: Fewer tokens = lower costs
+# MAGIC
+# MAGIC ### The Chunking Trade-off
+# MAGIC
+# MAGIC - **Large chunks**: More context, but less precise retrieval
+# MAGIC - **Small chunks**: More precise, but may lose context
+# MAGIC
+# MAGIC **Optimal chunk size**: 256-512 tokens for most use cases
+
+# COMMAND ----------
+
+import re
+
+from loguru import logger
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.functions import col
+
+from stackoverflow_curator.config import get_env, load_config
+
+# COMMAND ----------
+
+spark = SparkSession.builder.getOrCreate()
+
+env = get_env(spark)
+cfg = load_config("../project_config.yml", env)
+catalog = cfg.catalog
+schema = cfg.schema
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 2. Chunking Strategies Overview
+# MAGIC
+# MAGIC ### Strategy 1: Fixed-Size Chunking
+# MAGIC - Split by character count or token count
+# MAGIC - Simple and fast
+# MAGIC - May break sentences/paragraphs
+# MAGIC
+# MAGIC ### Strategy 2: Sentence-Based Chunking
+# MAGIC - Split on sentence boundaries
+# MAGIC - Preserves semantic units
+# MAGIC - Variable chunk sizes
+# MAGIC
+# MAGIC ### Strategy 3: Paragraph-Based Chunking
+# MAGIC - Split on paragraph boundaries
+# MAGIC - Larger semantic units
+# MAGIC - Better for documents with clear structure
+# MAGIC
+# MAGIC ### Strategy 4: Heading-Aware Chunking (Our Approach)
+# MAGIC - Split on markdown heading boundaries
+# MAGIC - Preserves document's natural semantic structure
+# MAGIC - Each section becomes its own chunk
+# MAGIC - Oversized sections are further split with overlap
+# MAGIC
+# MAGIC ### Strategy 5: AI Parse Documents (Databricks)
+# MAGIC - AI identifies document structure
+# MAGIC - Best for PDFs with complex layouts
+# MAGIC - Not needed for our markdown docs
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 3. Load Chunks from Lecture 2.2
+# MAGIC
+# MAGIC We'll use the heading-aware chunks created in Lecture 2.2.
+
+# COMMAND ----------
+
+chunks_df = spark.table(f"{catalog}.{schema}.hf_doc_chunks")
+
+logger.info(f"Total chunks available: {chunks_df.count()}")
+chunks_df.show(5, truncate=50)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 4. Analyze Chunk Statistics
+
+# COMMAND ----------
+
+chunk_stats = chunks_df.select(
+    F.avg(F.length(col("text"))).alias("avg_length"),
+    F.min(F.length(col("text"))).alias("min_length"),
+    F.max(F.length(col("text"))).alias("max_length"),
+    F.stddev(F.length(col("text"))).alias("stddev_length"),
+    F.count("*").alias("total_chunks"),
+).collect()[0]
+
+logger.info("Chunk Statistics:")
+logger.info(f"  Total chunks: {chunk_stats['total_chunks']}")
+logger.info(f"  Average length: {chunk_stats['avg_length']:.0f} characters")
+logger.info(f"  Min length: {chunk_stats['min_length']} characters")
+logger.info(f"  Max length: {chunk_stats['max_length']} characters")
+logger.info(f"  Std dev: {chunk_stats['stddev_length']:.0f} characters")
+
+# COMMAND ----------
+
+# Chunks per document
+logger.info("\nChunks per document:")
+chunks_df.groupBy("doc_id", "title").count().orderBy(
+    col("count").desc()
+).show(10, truncate=40)
+
+# COMMAND ----------
+
+# Chunks per category
+logger.info("\nChunks per category:")
+chunks_df.groupBy("primary_category").count().orderBy(
+    col("count").desc()
+).show(10, truncate=40)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 5. Alternative Chunking Strategies
+# MAGIC
+# MAGIC While heading-aware splitting is our primary approach,
+# MAGIC let's explore other strategies for comparison.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Strategy 1: Fixed-Size Chunking
+
+# COMMAND ----------
+
+
+def fixed_size_chunking(
+    text: str, chunk_size: int = 500, overlap: int = 50
+) -> list[str]:
+    """Create fixed-size chunks with overlap."""
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunks.append(text[start:end])
+        start += chunk_size - overlap
+    return chunks
+
+
+# COMMAND ----------
+
+# Example: Apply fixed-size chunking to a sample chunk
+sample_text = chunks_df.select("text").first()["text"]
+fixed_chunks = fixed_size_chunking(sample_text, chunk_size=500, overlap=50)
+
+logger.info(f"Original text length: {len(sample_text)} characters")
+logger.info(f"Number of fixed-size chunks: {len(fixed_chunks)}")
+logger.info(f"\nFirst chunk preview:")
+logger.info(fixed_chunks[0][:200] + "...")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Strategy 2: Sentence-Based Chunking
+
+# COMMAND ----------
+
+
+def sentence_chunking(text: str, max_sentences: int = 5) -> list[str]:
+    """Create chunks based on sentence boundaries."""
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+
+    chunks = []
+    current_chunk = []
+
+    for sentence in sentences:
+        current_chunk.append(sentence)
+        if len(current_chunk) >= max_sentences:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = []
+
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+
+    return chunks
+
+
+# COMMAND ----------
+
+sentence_chunks = sentence_chunking(sample_text, max_sentences=5)
+
+logger.info(f"Number of sentence-based chunks: {len(sentence_chunks)}")
+logger.info(f"\nFirst chunk preview:")
+logger.info(sentence_chunks[0][:200] + "...")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 6. Chunk Size Recommendations
+# MAGIC
+# MAGIC | Use Case | Recommended Size | Reasoning |
+# MAGIC |----------|-----------------|-----------|
+# MAGIC | **Question Answering** | 256-512 tokens | Precise retrieval, focused answers |
+# MAGIC | **Summarization** | 512-1024 tokens | More context needed |
+# MAGIC | **Semantic Search** | 256-512 tokens | Balance precision and context |
+# MAGIC | **Code Search** | 100-200 tokens | Function/class level granularity |
+# MAGIC
+# MAGIC **Token estimation**: ~4 characters = 1 token (English text)
+# MAGIC
+# MAGIC Our heading-aware approach targets ~2000 chars (~500 tokens) per chunk,
+# MAGIC with overlap for sections that exceed that limit.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 7. Best Practices
+# MAGIC
+# MAGIC ### Do:
+# MAGIC 1. **Clean text** before chunking (remove markdown noise, fix formatting)
+# MAGIC 2. **Preserve metadata** (doc_id, section_title, category, URL)
+# MAGIC 3. **Test different chunk sizes** for your specific use case
+# MAGIC 4. **Use overlap** for better context (50-200 characters)
+# MAGIC 5. **Monitor chunk quality** (length distribution, content quality)
+# MAGIC
+# MAGIC ### Don't:
+# MAGIC 1. Split in the middle of sentences (unless using fixed-size)
+# MAGIC 2. Ignore document structure (headings, lists, code blocks)
+# MAGIC 3. Forget to clean and normalize text
+# MAGIC 4. Lose metadata during chunking
+# MAGIC 5. Use the same chunk size for all document types
