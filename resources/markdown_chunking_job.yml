@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    markdown_chunking_job:
+      name: 2-2-markdown-chunking
+      tags:
+        project_name: "stackoverflow-curator"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: run_notebook
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/2.2_markdown_chunking.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
