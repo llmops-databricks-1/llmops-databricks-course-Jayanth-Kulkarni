@@ -88,7 +88,5 @@ class TestCreateMcpTools:
             tools = create_mcp_tools(w, ["http://fake"])
 
         result = tools[0].exec_fn(query="test query")
-        mock_client.call_tool.assert_called_once_with(
-            "my_tool", {"query": "test query"}
-        )
+        mock_client.call_tool.assert_called_once_with("my_tool", {"query": "test query"})
         assert result == "tool output"

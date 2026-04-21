@@ -57,9 +57,7 @@ def create_mcp_tools(w: WorkspaceClient, mcp_urls: list[str]) -> list[ToolInfo]:
             ) -> Callable[..., str]:
                 def exec_fn(**kwargs: str) -> str:
                     result = _client.call_tool(_name, kwargs)
-                    return "\n".join(
-                        c.text for c in result.content if hasattr(c, "text")
-                    )
+                    return "\n".join(c.text for c in result.content if hasattr(c, "text"))
 
                 return exec_fn
 

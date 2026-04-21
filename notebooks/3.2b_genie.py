@@ -83,10 +83,22 @@ serialized_space = {
                     {"column_name": "chunk_index"},
                     {"column_name": "doc_id", "get_example_values": True},
                     {"column_name": "id", "get_example_values": True},
-                    {"column_name": "primary_category", "get_example_values": True, "build_value_dictionary": True},
-                    {"column_name": "section_title", "get_example_values": True, "build_value_dictionary": True},
+                    {
+                        "column_name": "primary_category",
+                        "get_example_values": True,
+                        "build_value_dictionary": True,
+                    },
+                    {
+                        "column_name": "section_title",
+                        "get_example_values": True,
+                        "build_value_dictionary": True,
+                    },
                     {"column_name": "text"},
-                    {"column_name": "title", "get_example_values": True, "build_value_dictionary": True},
+                    {
+                        "column_name": "title",
+                        "get_example_values": True,
+                        "build_value_dictionary": True,
+                    },
                 ],
             },
             {
@@ -94,8 +106,16 @@ serialized_space = {
                 "column_configs": [
                     {"column_name": "doc_id", "get_example_values": True},
                     {"column_name": "ingest_ts"},
-                    {"column_name": "primary_category", "get_example_values": True, "build_value_dictionary": True},
-                    {"column_name": "title", "get_example_values": True, "build_value_dictionary": True},
+                    {
+                        "column_name": "primary_category",
+                        "get_example_values": True,
+                        "build_value_dictionary": True,
+                    },
+                    {
+                        "column_name": "title",
+                        "get_example_values": True,
+                        "build_value_dictionary": True,
+                    },
                     {"column_name": "url", "get_example_values": True},
                 ],
             },

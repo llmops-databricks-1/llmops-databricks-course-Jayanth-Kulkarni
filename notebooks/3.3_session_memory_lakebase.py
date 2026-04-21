@@ -89,7 +89,9 @@ try:
     _lakebase_available = True
 except Exception as e:
     logger.warning(f"Lakebase not available: {type(e).__name__}: {e}")
-    logger.warning("Skipping Lakebase sections — ask your workspace admin to enable Lakebase.")
+    logger.warning(
+        "Skipping Lakebase sections — ask your workspace admin to enable Lakebase."
+    )
 
 # COMMAND ----------
 
@@ -218,13 +220,13 @@ else:
 
 # COMMAND ----------
 
-_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()  # noqa: F821
+_token = (
+    dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+)  # noqa: F821
 client = OpenAI(api_key=_token, base_url=f"{w.config.host}/serving-endpoints")
 
 
-def chat_with_memory(
-    session_id: str, user_message: str, memory: LakebaseMemory
-) -> str:
+def chat_with_memory(session_id: str, user_message: str, memory: LakebaseMemory) -> str:
     """Chat with LLM using session memory for context."""
     previous_messages = memory.load_messages(session_id)
     messages = (
@@ -267,22 +269,20 @@ if memory._available:
     )
     logger.info(f"Response 1: {response1[:200]}...")
 
-    response2 = chat_with_memory(
-        agent_session_id, "What tasks does it support?", memory
-    )
+    response2 = chat_with_memory(agent_session_id, "What tasks does it support?", memory)
     logger.info(f"Response 2: {response2[:200]}...")
 
     full_conversation = memory.load_messages(agent_session_id)
     logger.info(f"Full conversation ({len(full_conversation)} messages):")
     for i, msg in enumerate(full_conversation, 1):
         content = (
-            msg["content"][:100] + "..."
-            if len(msg["content"]) > 100
-            else msg["content"]
+            msg["content"][:100] + "..." if len(msg["content"]) > 100 else msg["content"]
         )
         logger.info(f"  {i}. [{msg['role']}] {content}")
 else:
     logger.warning("LakebaseMemory unavailable — skipping multi-turn demo.")
-    logger.warning("To enable: ask your workspace admin to enable Lakebase for workspace 3158303576563862.")
+    logger.warning(
+        "To enable: ask your workspace admin to enable Lakebase for workspace 3158303576563862."
+    )
 
 memory.close()

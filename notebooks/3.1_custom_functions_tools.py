@@ -64,7 +64,9 @@ env = get_env(spark)
 cfg = load_config("../project_config.yml", env)
 
 w = WorkspaceClient()
-_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()  # noqa: F821
+_token = (
+    dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+)  # noqa: F821
 vsc = VectorSearchClient(
     workspace_url=w.config.host,
     personal_access_token=_token,
@@ -429,7 +431,11 @@ class SimpleAgent:
         self.system_prompt = system_prompt
         self._tools_dict = {tool.name: tool for tool in tools}
         self._client = OpenAI(
-            api_key=dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get(),  # noqa: F821
+            api_key=dbutils.notebook.entry_point.getDbutils()
+            .notebook()
+            .getContext()
+            .apiToken()
+            .get(),  # noqa: F821
             base_url=f"{w.config.host}/serving-endpoints",
         )
 

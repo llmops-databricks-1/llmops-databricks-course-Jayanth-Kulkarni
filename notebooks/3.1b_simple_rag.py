@@ -43,7 +43,9 @@ env = get_env(spark)
 cfg = load_config("../project_config.yml", env)
 
 w = WorkspaceClient()
-_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()  # noqa: F821
+_token = (
+    dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+)  # noqa: F821
 
 client = OpenAI(api_key=_token, base_url=f"{w.config.host}/serving-endpoints")
 
@@ -260,7 +262,13 @@ class SimpleRAG:
         self.conversation_history: list[dict] = []
 
         self.w = WorkspaceClient()
-        _token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()  # noqa: F821
+        _token = (
+            dbutils.notebook.entry_point.getDbutils()
+            .notebook()
+            .getContext()
+            .apiToken()
+            .get()
+        )  # noqa: F821
         self.client = OpenAI(
             api_key=_token,
             base_url=f"{self.w.config.host}/serving-endpoints",
@@ -306,7 +314,9 @@ class SimpleRAG:
         )
 
         self.conversation_history.append({"role": "user", "content": question})
-        messages = [{"role": "system", "content": system_message}] + self.conversation_history
+        messages = [
+            {"role": "system", "content": system_message}
+        ] + self.conversation_history
 
         response = self.client.chat.completions.create(
             model=self.llm_endpoint,

@@ -111,9 +111,7 @@ class LakebaseMemory:
                 " WHERE session_id = %s ORDER BY id",
                 (session_id,),
             ).fetchall()
-        return [
-            json.loads(row[0]) if isinstance(row[0], str) else row[0] for row in rows
-        ]
+        return [json.loads(row[0]) if isinstance(row[0], str) else row[0] for row in rows]
 
     def delete_session(self, session_id: str) -> None:
         """Delete all messages for a session.

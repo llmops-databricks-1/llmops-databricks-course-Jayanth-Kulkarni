@@ -208,9 +208,7 @@ else:
 
 # COMMAND ----------
 
-mcp_urls = [
-    f"{host}/api/2.0/mcp/vector-search/{cfg.catalog}/{cfg.schema}"
-]
+mcp_urls = [f"{host}/api/2.0/mcp/vector-search/{cfg.catalog}/{cfg.schema}"]
 
 if hasattr(cfg, "genie_space_id") and cfg.genie_space_id:
     mcp_urls.append(f"{host}/api/2.0/mcp/genie/{cfg.genie_space_id}")
@@ -304,7 +302,11 @@ class SimpleAgent:
         self.system_prompt = system_prompt
         self._tools_dict = {tool.name: tool for tool in tools}
         self._client = OpenAI(
-            api_key=dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get(),  # noqa: F821
+            api_key=dbutils.notebook.entry_point.getDbutils()
+            .notebook()
+            .getContext()
+            .apiToken()
+            .get(),  # noqa: F821
             base_url=f"{w.config.host}/serving-endpoints",
         )
 
