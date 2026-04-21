@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    session_memory_lakebase_job:
+      name: 3-3-session-memory-lakebase
+      tags:
+        project_name: "stackoverflow-curator"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: run_notebook
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/3.3_session_memory_lakebase.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
